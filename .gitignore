@@ -1,0 +1,8 @@
+# Local runtime state written by the plugin's own preference route.
+# It records this machine's last choice, not something the package ships.
+config.json
+
+# Tooling noise
+node_modules/
+*.log
+.DS_Store

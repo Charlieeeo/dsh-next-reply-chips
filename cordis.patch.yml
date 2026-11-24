@@ -1,0 +1,12 @@
+# dsh-next-reply-chips bundle patch: mounts the plugin into a profile's Host
+# composition. The Host half only registers one system-prompt section (the
+# marker format the model must emit); the browser half renders the chips and
+# sends them through the composer's own input actions.
+#
+# Install: `dsh plugin --profile <name> add <path-or-package>`.
+# Disable: the row's switch on Settings -> Plugins, which removes both halves.
+- insert:
+    - id: next-reply-chips
+      # Node-resolvable package name — must stay in sync with package.json `name`.
+      name: 'dsh-next-reply-chips'
+      config: {}
