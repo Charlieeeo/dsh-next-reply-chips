@@ -1,6 +1,10 @@
-# Local runtime state written by the plugin's own preference route.
-# It records this machine's last choice, not something the package ships.
+# Local runtime state, never shipped.
+
+# Pre-0.6 builds wrote the preference beside the package; 0.6+ uses the DSH home.
 config.json
+
+# Test scratch files
+.smoke-*
 
 # Tooling noise
 node_modules/
