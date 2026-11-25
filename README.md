@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="assets/icon-180.png" alt="dsh-next-reply-chips" width="112">
+  <img src="icon-180.png" alt="dsh-next-reply-chips" width="112">
 
 # dsh-next-reply-chips
 
@@ -16,8 +16,8 @@
 建议由主回复自身给出，**不额外调用模型**；点一下可以直接发出，也可以只填进输入框等你确认。
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="assets/preview-dark.png">
-  <img src="assets/preview-light.png" width="820" alt="一条回答下方出现三个可点击的下一步药丸：按方案 A 继续、先看数据再定、换成英文标题">
+  <source media="(prefers-color-scheme: dark)" srcset="preview-dark.png">
+  <img src="preview-light.png" width="820" alt="一条回答下方出现三个可点击的下一步药丸：按方案 A 继续、先看数据再定、换成英文标题">
 </picture>
 
 <sub>示意图：按插件真实布局与样式值绘制（12px 药丸、999px 圆角、4×12 内边距、跟随主题色），<b>非产品截图</b>。</sub>
