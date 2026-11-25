@@ -1,19 +1,22 @@
 # dsh-next-reply-chips
 
-Clickable **next-reply chips** under every assistant turn in the DeepSeek Harness Web GUI. Each chip carries one likely thing you would say next, so a turn advances with one click.
+[English](README.en.md) | 简体中文
 
-## What makes it different
+**每条回答下方，三个可以直接点的下一步。** 为 [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness)（DSH）提供可点击的后续消息建议。
 
-Two plugins on the awesome list already do "suggest what I say next". This one differs in exactly two verifiable ways:
+`v0.6.0` · DSH `0.2.2-rc.x` · 桌面 / Web
 
-1. **No auxiliary model call.** The suggestions ride along in the reply you already paid for — the model closes its answer with a `suggest` code block, and the browser parses it. Nothing extra is requested per turn.
-2. **The click behaviour is yours to choose.** Chips can send immediately, or only fill the composer so you can edit first.
+## 功能
 
-The trade-off is honest and stated up front: because the suggestions come from the reply itself, a model that ignores the format produces no chips for that turn. A plugin that spends an extra call per turn does not have that failure mode.
+- 每轮回答结束后，在本轮动作行**上方**显示最多 3 个药丸按钮，每个是一条可以直接发出去的话。
+- 点击行为可切换：**直接发送**（默认），或**只填入输入框**、你改完再自己发。
+- 建议由**主回复自身**给出，不额外调用模型，因此每轮没有附加延迟和费用。
+- 代理（子）会话不显示药丸，也不会被注入格式指令。
+- 颜色跟随 DSH 深浅主题；会话进行中时按钮置灰。
 
-## How it works
+## 工作原理
 
-1. **Host half** (`lib/index.js`) registers one system-prompt section asking the model to close each reply with a `suggest` block:
+1. **主机半**注册一条系统提示，要求模型在每轮末尾追加一个 `suggest` 代码块：
 
    ````text
    ```suggest
@@ -21,102 +24,95 @@ The trade-off is honest and stated up front: because the suggestions come from t
    ```
    ````
 
-   Delegated agents are skipped: they answer into a parent's tool result where no chip row renders, so the instruction would only add tokens and plant stray blocks.
+2. **浏览器半**做两件事：用一个 `suggest` 语言键的 hoc 层把该代码块**整块吞掉**（正文里看不到），并从本轮助手原文中解析出选项，渲染成药丸。
 
-2. **Browser half** (`lib/client.js`) does two things with that block:
-   - a `conversation.chat.markdown.fence` hoc layer keyed `suggest` renders **nothing**, so the block never reaches the transcript;
-   - one cell in `conversation.chat.turnTail` reads the settled assistant text of that Turn, parses the options, and renders up to three pills.
+3. **点击**走输入框自身的 `inputActions`，所以附件、权限门、计划模式的表现与你手动输入完全一致。
 
-3. **Click** goes through the composer's own `inputActions`, so attachments, permission gates and plan mode behave exactly as if you had typed the text.
+**代价（如实说明）**：建议来自回复本身，所以**模型不遵守格式的那一轮就没有药丸**——不报错、不留空行。有插件选择"每轮额外调一次模型"来换取格式无关，代价是每轮的延迟与费用；本项目选了前者。
 
-### Why a fenced block and not an HTML comment
+### 为什么用代码块而不是 HTML 注释
 
-An HTML comment looked like the obvious choice, but the Chat markdown pipeline escapes rather than drops `html` nodes — the comment rendered as visible text. A fenced block is dispatched to a real Slot by its language, so a hoc layer can replace it wholesale. The legacy comment shape is still parsed, for transcripts written by an older build.
+最初用的是 `<!--NEXT: -->` 注释，但 DSH 的 markdown 管线会**转义**而非丢弃 HTML 节点，注释会以原文形式露在正文里。代码块会按语言派发到真实槽位，因此 hoc 层可以整体替换它。旧的注释形态仍然能被解析，只是不再推荐。
 
-## The setting
+## 安装
 
-**Settings → 下一步建议**:
+从 GitHub（推荐）：
 
-| Option | What a click does |
-| --- | --- |
-| **直接发送** (default) | `setDraft(text)` + `submit()` — the message goes out at once |
-| **填入输入框，待我确认** | `setDraft(text)` only — the text lands in the composer and you send it yourself |
-
-Persisted in `config.json` beside the package, so it survives restarts **and** Web-GUI port changes (the origin carries a port that has been observed to change between launches, which is why the preference is not in `localStorage`).
-
-## Deliberately dependency-free
-
-`package.json` declares **no** `dependencies` and **no** `peerDependencies`. That is a design choice, not an omission:
-
-- A plugin `Config` schema needs `@deepseek-ai/schemastery`, and a `link:`-installed package resolves bare imports from its own directory rather than the profile's `node_modules` — the schema would not load for local installs.
-- Declaring official `@deepseek-ai/*` peers brings a version-range hazard: a range without an explicit prerelease branch on the exact `major.minor.patch` tuple silently excludes the harness's prerelease builds, and an unmet requirement **blocks installation**.
-
-So the preference is a plain JSON file and the settings surface is a `settings.section` page. The plugin installs from any path, with no build step and no dependency resolution.
-
-## Behaviour notes
-
-| Situation | Result |
-| --- | --- |
-| Model omitted the marker | No row, no gap, no error |
-| Marker split across content blocks | Blocks are joined before parsing |
-| Options one per line instead of `\|\|` | Accepted; bullets and `1.` prefixes stripped |
-| Model emits a JSON array instead | Salvaged |
-| Wrapping quotes `「」“”` / list markers | Peeled |
-| Same option twice in different case | De-duplicated |
-| One suggestion longer than 80 characters | Truncated |
-| Legacy `<!--NEXT: ... -->` comment | Still parsed |
-| `turn` prop is `3`, `{turn}`, `{kind,turn}`, or `{turn:{turn}}` | All folded to a number before matching |
-| `turn` prop cannot be normalized | Falls back to the closing answer only, so older Turns stay bare |
-| `useChat` unavailable | Falls back to `session.chat` from the session snapshot |
-| Several `assistant-step` nodes in one Turn (retry/interrupt) | Newest one carrying a marker wins |
-| Session currently running | Chips render disabled |
-| `inputActions` unavailable (version drift) | Chips render disabled; a click logs one error |
-| The fence hider fails to attach | Chips still work; the block stays visible (warning logged) |
-| Preference route unreachable | Falls back to the documented default (direct send) |
-| Delegated (sub-)agent session | No marker instruction, no row |
-
-### Debugging a missing row
-
-Run `window.__NRC_DIAG__ = true` in the browser console and reload. The newest answer then renders a one-line report of what the renderer actually handed over — `turn`, `order` length, whether `nodes` is a map, and the trailing node kinds — enough to tell a missing chat slice from an unexpected node kind from a reply that simply carried no marker. Off by default.
-
-## Install
-
-From a checkout:
-
-```bash
-dsh plugin --profile <profile> add E:\path\to\dsh-next-reply-chips
+```powershell
+dsh plugin --profile desktop add "github:Charlieeeo/dsh-next-reply-chips"
 ```
 
-From GitHub:
+或在 **设置 → 插件 → 添加插件** 里粘贴同一串 `github:Charlieeeo/dsh-next-reply-chips`。
 
-```bash
-dsh plugin --profile <profile> add github:Charlieeeo/dsh-next-reply-chips
+从本地目录：
+
+```powershell
+dsh plugin --profile desktop add "E:\path\to\dsh-next-reply-chips"
 ```
 
-Refresh the Web GUI after installing. **Host half** changes need a DSH restart; **client half** changes need only a page refresh.
+安装后在 **设置 → 插件** 确认已启用。**主机半**改动需要重启 DSH；**浏览器半**改动只需刷新页面。
 
-## Test
+卸载：
 
-```bash
-node test/smoke.mjs   # 38 checks
+```powershell
+dsh plugin --profile desktop remove dsh-next-reply-chips
 ```
 
-Covers: the host section and its delegated-agent skip, the preference route (GET/POST/400/405 against the real file), both click modes, both marker shapes, `Turn` coercion, and the parser's normalisation, de-duplication, length cap and JSON salvage.
+## 使用
 
-## Disable
+装好后无需配置：下一轮回答结束，药丸就会出现在回答下方。
 
-Settings → Plugins → **dsh-next-reply-chips** → switch off. This removes the browser half, the settings page, the fence hider **and** the system-prompt section together, so no stale instruction survives.
+点击行为在 **设置 → 下一步建议** 里切换：
 
-## Files
-
-| Path | Role |
+| 选项 | 点击后 |
 | --- | --- |
-| `lib/index.js` | Host half: system-prompt section + `/plugins/dsh-next-reply-chips/config` GET/POST |
-| `lib/client.js` | Browser half: `turnTail` chips + `suggest` fence hider + `settings.section` page (hand-written lazy-CJS factory, no build step) |
-| `cordis.patch.yml` | Inserts the Loader row |
-| `config.json` | Created on first save; local runtime state, git-ignored |
-| `test/smoke.mjs` | Test harness (not shipped) |
+| **直接发送**（默认） | 立刻作为你的下一条消息发出 |
+| **填入输入框，待我确认** | 只填进输入框，你可以改完再自己发 |
 
-## Credit
+想彻底关掉：**设置 → 插件 → dsh-next-reply-chips** 关闭开关。这会同时移除药丸、设置页、代码块隐藏层和系统提示指令，不会留下脏状态。
 
-The interaction pattern — suggested follow-ups under an answer, click to accept — follows `anye-99/dsh-next-step-suggest` and `Basspoom/dsh-nextline` on the awesome-dsh-plugin list. The delegated-agent skip and the suggestion normalisation rules were inspired by reading their source.
+## 配置
+
+唯一的状态是一个布尔值，存在 **`~/.dsh/next-reply-chips.json`**：
+
+```json
+{ "directSend": false }
+```
+
+放在 DSH 主目录而不是包目录，是因为 `dsh plugin add github:...` 会把包装进 `node_modules`，那里可能不可写、升级时也会被覆盖。
+
+早于 0.6 的版本把该文件写在包目录，读取时仍会兼容并沿用其中的值。
+
+## 数据与隐私
+
+- **不联网**。插件不发起任何外部请求。
+- **不额外调用模型**。没有辅助请求，没有把会话内容发到别处。
+- 唯一的网络往返是**同源**的 `GET/POST /plugins/dsh-next-reply-chips/config`，仅用于读写上面那个布尔值。
+- 唯一的落盘文件是 `~/.dsh/next-reply-chips.json`。
+- 不采集任何遥测。
+
+## 兼容性
+
+- 在 DSH `0.2.2-rc.5` 上实测可用。
+- 依赖三个客户端槽位：`conversation.chat.turnTail`、`conversation.chat.markdown.fence`、`settings.section`。若某个槽位不存在，药丸那一格会自动不显示，其余功能不受影响。
+- 无依赖、无构建步骤、无 `peerDependencies`，因此不会触发安装期的版本闸门。
+
+## 已知限制
+
+- 依赖模型遵守格式；不遵守时该轮没有药丸。
+- 用户消息里若手动粘贴 ```suggest 代码块，也会被隐藏层吞掉（不会影响助手侧功能）。
+- 尚未发布到 npm。
+
+## 开发
+
+```powershell
+node test/smoke.mjs   # 39 项，覆盖主机段与路由、两种点击模式、两种标记形态、Turn 折叠、解析清洗
+```
+
+测试使用临时文件，**不会读写你真实的 `~/.dsh/next-reply-chips.json`**。
+
+调试"药丸没出现"：在浏览器控制台执行 `window.__NRC_DIAG__ = true` 并刷新，最新一条回答下方会打印一行形状诊断（`turn`、`order` 长度、`nodes` 是否 map、尾部节点种类）。
+
+## 许可
+
+[MIT](LICENSE)
