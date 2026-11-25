@@ -10,6 +10,9 @@
 <img alt="构建步骤" src="https://img.shields.io/badge/build%20step-none-7da1de?style=flat-square">
 <img alt="适配内核" src="https://img.shields.io/badge/dsh-0.2.2--rc.5-2f6f4f?style=flat-square">
 <img alt="额外模型调用" src="https://img.shields.io/badge/extra%20model%20calls-0-f0a441?style=flat-square">
+<img alt="npm" src="https://img.shields.io/npm/v/dsh-next-reply-chips?style=flat-square&color=cb3837&label=npm">
+
+`v0.6.1` · DSH `0.2.2-rc.x` · 桌面 / Web
 
 **每条回答下方，三个可以直接点的下一步。**
 
@@ -17,16 +20,14 @@
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="preview-dark.png">
-  <img src="preview-light.png" width="820" alt="一条回答下方出现三个可点击的下一步药丸：按方案 A 继续、先看数据再定、换成英文标题">
+  <img src="preview-light.png" width="820" alt="示意图：一条回答下方出现三个可点击的下一步药丸——按方案 A 继续、先看数据再定、换成英文标题">
 </picture>
-
-<sub>示意图：按插件真实布局与样式值绘制（12px 药丸、999px 圆角、4×12 内边距、跟随主题色），<b>非产品截图</b>。</sub>
 
 </div>
 
 ---
 
-## 你能拿它做什么
+## 💡 你能拿它做什么
 
 药丸内容由模型按当轮回答生成，下面是它通常长什么样：
 
@@ -37,7 +38,7 @@
 | 停在需要你拍板的地方 | 「就按这个定」「先不动，我要复核」 |
 | 做完了但没说下一步 | 「跑一下测试」「把改动提交」 |
 
-## 功能
+## ✨ 功能
 
 - 每轮回答结束后，在本轮动作行**上方**显示最多 3 个药丸按钮。
 - 点击行为可切换：**直接发送**（默认），或**只填入输入框**、你改完再自己发。
@@ -46,7 +47,7 @@
 - 颜色跟随 DSH 深浅主题；会话进行中时按钮置灰。
 - 无依赖、无构建步骤；装与卸都是 `dsh plugin` 一条命令。
 
-## 安装
+## 📦 安装
 
 从 GitHub（推荐）：
 
@@ -55,6 +56,12 @@ dsh plugin --profile desktop add "github:Charlieeeo/dsh-next-reply-chips"
 ```
 
 或在 **设置 → 插件 → 添加插件** 里粘贴同一串 `github:Charlieeeo/dsh-next-reply-chips`。
+
+从 npm（版本固定，市场能显示下载量）：
+
+```powershell
+dsh plugin --profile desktop add dsh-next-reply-chips
+```
 
 从本地目录：
 
@@ -70,7 +77,7 @@ dsh plugin --profile desktop add "E:\path\to\dsh-next-reply-chips"
 dsh plugin --profile desktop remove dsh-next-reply-chips
 ```
 
-## 使用
+## 🖱️ 使用
 
 装好后无需配置：下一轮回答结束，药丸就出现在回答下方。
 
@@ -83,7 +90,7 @@ dsh plugin --profile desktop remove dsh-next-reply-chips
 
 想彻底关掉：**设置 → 插件 → dsh-next-reply-chips** 关闭开关。这会同时移除药丸、设置页、代码块隐藏层和系统提示指令，不会留下脏状态。
 
-## 配置
+## ⚙️ 配置
 
 唯一的状态是一个布尔值，存在 `~/.dsh/next-reply-chips.json`：
 
@@ -93,15 +100,9 @@ dsh plugin --profile desktop remove dsh-next-reply-chips
 
 早于 0.6 的版本把它写在包目录，读取时仍会兼容并沿用其中的值。
 
-## 设计取舍
+## 🧠 设计取舍
 
 这一节记录的每一条，都是**实测撞出来之后才敢写**的，不是设计时的猜测。
-
-### 为什么用代码块，而不是 HTML 注释
-
-最初用 `<!--NEXT: -->` 注释藏建议。实测发现 DSH 的 markdown 管线会**转义**而不是丢弃 HTML 节点——注释以原文形式露在正文里，每条回答末尾挂一行 `<!--NEXT: ... -->`。
-
-改成 ```` ```suggest ```` 代码块后成立：代码块会按语言派发到 `conversation.chat.markdown.fence` 这个真实槽位，于是可以用一个 hoc 层把整块**吞掉**，正文里什么都不留。旧的注释形态仍然能被解析，只是不再推荐。
 
 ### 为什么 `turn` 要先折成数字
 
@@ -132,7 +133,7 @@ dsh plugin --profile desktop remove dsh-next-reply-chips
 
 早期的测试会读写包目录里的 `config.json`，某次跑完直接把使用者存的偏好删了。现在测试通过 `DSH_NRC_CONFIG_FILE` / `DSH_NRC_LEGACY_CONFIG_FILE` 指向临时路径，**完全不碰**真实文件。
 
-## 数据与隐私
+## 🔒 数据与隐私
 
 - **不联网**。插件不发起任何外部请求。
 - **不额外调用模型**。没有辅助请求，没有把会话内容发到别处。
@@ -140,7 +141,7 @@ dsh plugin --profile desktop remove dsh-next-reply-chips
 - 唯一的落盘文件是 `~/.dsh/next-reply-chips.json`。
 - 不采集任何遥测。
 
-## 兼容性
+## 🧩 兼容性
 
 | 项 | 说明 |
 | --- | --- |
@@ -149,13 +150,12 @@ dsh plugin --profile desktop remove dsh-next-reply-chips
 | 槽位缺失时 | 那一格不渲染，其余功能照常 |
 | 依赖 / peer / private | `0` / `0` / `false` |
 
-## 已知限制
+## ⚠️ 已知限制
 
 - 依赖模型遵守格式；**不遵守格式的那一轮没有药丸**——不报错、不留空行。有插件选择"每轮额外调一次模型"来换取格式无关，代价是每轮的延迟与费用；本项目选了前者。
 - 用户消息里若手动粘贴 ```` ```suggest ```` 代码块，也会被同一个隐藏层吞掉。
-- 尚未发布到 npm。
 
-## 开发
+## 🛠️ 开发
 
 ```powershell
 node test/smoke.mjs
@@ -179,6 +179,6 @@ node test/smoke.mjs
 
 调试"药丸没出现"：在浏览器控制台执行 `window.__NRC_DIAG__ = true` 并刷新，最新一条回答下方会打印一行形状诊断（`turn`、`order` 长度、`nodes` 是否 map、尾部节点种类）。
 
-## 许可
+## 📜 许可
 
 [MIT](LICENSE)
