@@ -3,6 +3,23 @@
 
 # dsh-next-reply-chips
 
+> ## ⚠️ 本插件已改名并迁移
+>
+> **新仓库：[Charlieeeo/dsh-next-reply](https://github.com/Charlieeeo/dsh-next-reply)**
+> **新 npm 包：[`dsh-next-reply`](https://www.npmjs.com/package/dsh-next-reply)**
+>
+> 本仓库与 npm 上的 `dsh-next-reply-chips` **停在 0.6.1，不再更新**。
+> 0.7.0 起包名、仓库名、loader 条目 id、配置文件名全部改为 `next-reply`。
+>
+> **迁移命令：**
+>
+> ```powershell
+> dsh plugin --profile desktop remove dsh-next-reply-chips
+> dsh plugin --profile desktop add dsh-next-reply
+> ```
+>
+> 你的偏好会自动带过去：旧的 `~/.dsh/next-reply-chips.json` 仍会被新版本读取。
+
 **简体中文** | [English](README.en.md)
 
 <img alt="许可证" src="https://img.shields.io/badge/license-MIT-1f2430?style=flat-square">
@@ -10,9 +27,9 @@
 <img alt="构建步骤" src="https://img.shields.io/badge/build%20step-none-7da1de?style=flat-square">
 <img alt="适配内核" src="https://img.shields.io/badge/dsh-0.2.2--rc.5-2f6f4f?style=flat-square">
 <img alt="额外模型调用" src="https://img.shields.io/badge/extra%20model%20calls-0-f0a441?style=flat-square">
-<img alt="npm" src="https://img.shields.io/npm/v/dsh-next-reply-chips?style=flat-square&color=cb3837&label=npm">
+<img alt="状态" src="https://img.shields.io/badge/%E7%8A%B6%E6%80%81-%E5%B7%B2%E5%BA%9F%E5%BC%83%EF%BC%8C%E8%A7%81%20dsh--next--reply-b31b1b?style=flat-square">
 
-`v0.6.1` · DSH `0.2.2-rc.x` · 桌面 / Web
+`v0.6.1`（最终版） · DSH `0.2.2-rc.x` · 桌面 / Web
 
 **每条回答下方，三个可以直接点的下一步。**
 
@@ -20,12 +37,36 @@
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="preview-dark.png">
-  <img src="preview-light.png" width="820" alt="示意图：一条回答下方出现三个可点击的下一步药丸——按方案 A 继续、先看数据再定、换成英文标题">
+  <img src="preview-light.png" width="820" alt="示意图：一条回答下方出现三个可点击的下一步药丸">
 </picture>
 
 </div>
 
 ---
+
+## 📦 安装（仅限 0.6.1 旧版）
+
+> 新用户请直接用 [`dsh-next-reply`](https://github.com/Charlieeeo/dsh-next-reply)，不要装这个。
+
+从 GitHub：
+
+```powershell
+dsh plugin --profile desktop add "github:Charlieeeo/dsh-next-reply-chips"
+```
+
+从 npm：
+
+```powershell
+dsh plugin --profile desktop add dsh-next-reply-chips
+```
+
+装完在 **设置 → 插件** 确认已启用。**主机半**改动需要重启 DSH；**浏览器半**改动只需刷新页面。
+
+卸载：
+
+```powershell
+dsh plugin --profile desktop remove dsh-next-reply-chips
+```
 
 ## 💡 你能拿它做什么
 
@@ -38,7 +79,7 @@
 | 停在需要你拍板的地方 | 「就按这个定」「先不动，我要复核」 |
 | 做完了但没说下一步 | 「跑一下测试」「把改动提交」 |
 
-## ✨ 功能
+## ✨ 功能（0.6.1）
 
 - 每轮回答结束后，在本轮动作行**上方**显示最多 3 个药丸按钮。
 - 点击行为可切换：**直接发送**（默认），或**只填入输入框**、你改完再自己发。
@@ -46,49 +87,6 @@
 - 代理（子）会话不显示药丸，也不会被注入格式指令。
 - 颜色跟随 DSH 深浅主题；会话进行中时按钮置灰。
 - 无依赖、无构建步骤；装与卸都是 `dsh plugin` 一条命令。
-
-## 📦 安装
-
-从 GitHub（推荐）：
-
-```powershell
-dsh plugin --profile desktop add "github:Charlieeeo/dsh-next-reply-chips"
-```
-
-或在 **设置 → 插件 → 添加插件** 里粘贴同一串 `github:Charlieeeo/dsh-next-reply-chips`。
-
-从 npm（版本固定，市场能显示下载量）：
-
-```powershell
-dsh plugin --profile desktop add dsh-next-reply-chips
-```
-
-从本地目录：
-
-```powershell
-dsh plugin --profile desktop add "E:\path\to\dsh-next-reply-chips"
-```
-
-装完在 **设置 → 插件** 确认已启用。**主机半**改动需要重启 DSH；**浏览器半**改动只需刷新页面。
-
-卸载：
-
-```powershell
-dsh plugin --profile desktop remove dsh-next-reply-chips
-```
-
-## 🖱️ 使用
-
-装好后无需配置：下一轮回答结束，药丸就出现在回答下方。
-
-点击行为在 **设置 → 下一步建议** 里切换：
-
-| 选项 | 点击后 |
-| --- | --- |
-| **直接发送**（默认） | 立刻作为你的下一条消息发出 |
-| **填入输入框，待我确认** | 只填进输入框，你可以改完再自己发 |
-
-想彻底关掉：**设置 → 插件 → dsh-next-reply-chips** 关闭开关。这会同时移除药丸、设置页、代码块隐藏层和系统提示指令，不会留下脏状态。
 
 ## ⚙️ 配置
 
@@ -115,6 +113,8 @@ dsh plugin --profile desktop remove dsh-next-reply-chips
 用户消息的载荷是 `data.content` 的块数组，但**助手消息不保证是这个形状**——可能是扁平 `text`，也可能是渲染好的 markdown。第一版按用户消息的结构去读助手节点，取到空字符串，于是永远找不到标记。
 
 现在先试已知形状（`content[].text` / `data.text` / `data.markdown`），都落空才遍历整个值，并跳过 `type`/`kind`/`role` 这类结构键——否则 `type: "text"` 这个值会被当成正文混进选项里。
+
+> **这段在 0.8.0 被推翻并重写了。** 真实形状是 `data.blocks[]`，靠兜底遍历只是碰巧能用；详见新仓库的 README。
 
 ### 为什么偏好不写在包目录
 
@@ -152,7 +152,7 @@ dsh plugin --profile desktop remove dsh-next-reply-chips
 
 ## ⚠️ 已知限制
 
-- 依赖模型遵守格式；**不遵守格式的那一轮没有药丸**——不报错、不留空行。有插件选择"每轮额外调一次模型"来换取格式无关，代价是每轮的延迟与费用；本项目选了前者。
+- 依赖模型遵守格式；**不遵守格式的那一轮没有药丸**——不报错、不留空行。
 - 用户消息里若手动粘贴 ```` ```suggest ```` 代码块，也会被同一个隐藏层吞掉。
 
 ## 🛠️ 开发
@@ -176,8 +176,6 @@ node test/smoke.mjs
 | 健壮性 | 畸形快照返回 `null`；插件自身读取临时文件、不留残留 |
 
 </details>
-
-调试"药丸没出现"：在浏览器控制台执行 `window.__NRC_DIAG__ = true` 并刷新，最新一条回答下方会打印一行形状诊断（`turn`、`order` 长度、`nodes` 是否 map、尾部节点种类）。
 
 ## 📜 许可
 
